@@ -1,4 +1,5 @@
 from functions import get_file_path, unique_values_from_list
+import sys
 
 file_path = get_file_path()  # getting file path
 
@@ -16,6 +17,10 @@ for line in lines:
         else:
             raw_row_of_data.append(item)
     disk_data.append(raw_row_of_data)  # populating disk_data list with data
+
+if not disk_data:
+    print('File not loaded correctly. Terminating script')
+    sys.exit(0)
 
 ''' 1. How many disks are in total'''
 print('Total number of disks: ', len(disk_data), '\n')  # counts and print total number on disks
@@ -83,14 +88,25 @@ sorted_disk_data = sorted(disk_data, key=lambda value: value[11])  # sort disk_d
 lowest_IO = sorted_disk_data[0:5]  # top 5 lowest avg IO/s
 highest_IO = sorted_disk_data[-5:]  # top 5 highest avg IO/s
 
+
 print('Top 5 disks with lowest average IO/s:\n',
       '| DC Name', '| Disk Serial No. |', 'Avg IO/s |')
 for item in lowest_IO:
     print(item[0], item[2], item[11], sep='\t')
 print()
+
 print('Top 5 disks with highest average IO/s:\n',
       '| DC Name', '| Disk Serial No. |', 'Avg IO/s |')
 for item in highest_IO:
     print(item[0], item[2], item[11], sep='\t')
+print()
 
 
+'''10. Find disks which are most probably broken, i.e. have non-zero uncorrected errors (print disks and error counter)'''
+dmg_disks = [item for item in disk_data if item[7] != 0 or item[8] != 0]  #searching for disks with non-zerro uncorrected errors
+
+if dmg_disks:
+    print('List of probably broken disks:\n',
+          '| DC Name', '| Disk Serial No. |', 'No. of read errors|', 'No. of write errors|')
+    for item in dmg_disks:
+        print(item[0], item[2], item[7], item[8], sep='\t')
